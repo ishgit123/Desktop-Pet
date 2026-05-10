@@ -1,0 +1,297 @@
+<Window x:Class="PetDude.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:PetDude.Controls"
+        Title="Pet Dude"
+        Width="640"
+        Height="360"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True"
+        Topmost="True"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        SourceInitialized="Window_SourceInitialized"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+  <Window.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    <Style x:Key="InvisibleResizeThumb" TargetType="Thumb">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Thumb">
+            <Border Background="#01FFFFFF" />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <DrawingBrush x:Key="GrassTile" TileMode="Tile" Viewport="0,0,64,64" ViewportUnits="Absolute" Viewbox="0,0,64,64" ViewboxUnits="Absolute">
+      <DrawingBrush.Drawing>
+        <DrawingGroup>
+          <GeometryDrawing Brush="#79B85B"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,64,64" /></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#83C465"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="0,0,32,32" /><RectangleGeometry Rect="32,32,32,32" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#6AAA52"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="8,14,5,4" /><RectangleGeometry Rect="24,48,8,4" /><RectangleGeometry Rect="46,8,7,4" /><RectangleGeometry Rect="52,36,4,8" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#91D875"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="18,10,3,3" /><RectangleGeometry Rect="37,24,3,3" /><RectangleGeometry Rect="10,42,3,3" /><RectangleGeometry Rect="56,56,3,3" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#5F9B4B"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="4,58,12,2" /><RectangleGeometry Rect="38,4,10,2" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+        </DrawingGroup>
+      </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="DirtTile" TileMode="Tile" Viewport="0,0,64,64" ViewportUnits="Absolute" Viewbox="0,0,64,64" ViewboxUnits="Absolute">
+      <DrawingBrush.Drawing>
+        <DrawingGroup>
+          <GeometryDrawing Brush="#A86F3E"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,64,64" /></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#BE824C"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="0,0,32,32" /><RectangleGeometry Rect="32,32,32,32" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#815231"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="8,12,10,4" /><RectangleGeometry Rect="38,42,12,4" /><RectangleGeometry Rect="48,10,6,5" /><RectangleGeometry Rect="18,54,7,3" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#D09A62"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="24,20,8,3" /><RectangleGeometry Rect="6,44,7,3" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+        </DrawingGroup>
+      </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <DrawingBrush x:Key="WaterTile" TileMode="Tile" Viewport="0,0,64,64" ViewportUnits="Absolute" Viewbox="0,0,64,64" ViewboxUnits="Absolute">
+      <DrawingBrush.Drawing>
+        <DrawingGroup>
+          <GeometryDrawing Brush="#3988B3"><GeometryDrawing.Geometry><RectangleGeometry Rect="0,0,64,64" /></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#55B3D2"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="8,14,24,4" /><RectangleGeometry Rect="34,38,18,4" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#2B6D91"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="0,56,64,8" /><RectangleGeometry Rect="54,0,10,64" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+          <GeometryDrawing Brush="#83DDF0"><GeometryDrawing.Geometry><GeometryGroup><RectangleGeometry Rect="16,24,14,3" /><RectangleGeometry Rect="40,12,10,3" /></GeometryGroup></GeometryDrawing.Geometry></GeometryDrawing>
+        </DrawingGroup>
+      </DrawingBrush.Drawing>
+    </DrawingBrush>
+  </Window.Resources>
+
+  <Grid x:Name="HitSurface"
+        Background="Transparent"
+        MouseLeftButtonDown="HitSurface_MouseLeftButtonDown"
+        MouseLeftButtonUp="HitSurface_MouseLeftButtonUp">
+    <Border Background="#171C17" BorderBrush="#3F2617" BorderThickness="6">
+      <Canvas x:Name="FieldViewport"
+              ClipToBounds="True"
+              Background="{StaticResource GrassTile}"
+              RenderOptions.EdgeMode="Aliased"
+              SizeChanged="FieldViewport_SizeChanged">
+        <controls:PixelFarmScene x:Name="FarmScene"
+                                 Width="{Binding ActualWidth, ElementName=FieldViewport}"
+                                 Height="{Binding ActualHeight, ElementName=FieldViewport}"
+                                 IsHitTestVisible="False"
+                                 RenderOptions.EdgeMode="Aliased" />
+        <Canvas x:Name="FieldDecorLayer" Visibility="Collapsed" IsHitTestVisible="False" RenderOptions.EdgeMode="Aliased">
+          <Rectangle x:Name="TopHighlight" Height="30" Canvas.Left="0" Canvas.Top="0" Fill="#8FD06E" Opacity="0.62" />
+          <Rectangle x:Name="TopShade" Height="7" Canvas.Left="0" Canvas.Top="30" Fill="#4E7F43" Opacity="0.72" />
+
+          <Rectangle x:Name="DirtBase" Height="82" Canvas.Left="0" Fill="{StaticResource DirtTile}" />
+          <Rectangle x:Name="DirtRim" Height="10" Canvas.Left="0" Fill="#D19B62" />
+          <Rectangle x:Name="DirtShadow" Height="10" Canvas.Left="0" Fill="#4A2F20" />
+
+          <Rectangle Width="190" Height="82" Canvas.Left="274" Canvas.Top="72" Fill="#2E6F91" />
+          <Rectangle Width="174" Height="66" Canvas.Left="282" Canvas.Top="80" Fill="{StaticResource WaterTile}" />
+          <Rectangle Width="150" Height="5" Canvas.Left="296" Canvas.Top="90" Fill="#8ADAF0" Opacity="0.86" />
+          <Rectangle Width="88" Height="4" Canvas.Left="320" Canvas.Top="120" Fill="#8ADAF0" Opacity="0.75" />
+          <Rectangle Width="22" Height="10" Canvas.Left="270" Canvas.Top="90" Fill="#79B85B" />
+          <Rectangle Width="22" Height="10" Canvas.Left="448" Canvas.Top="128" Fill="#79B85B" />
+          <Rectangle Width="12" Height="6" Canvas.Left="292" Canvas.Top="136" Fill="#E4F7B0" />
+          <Rectangle Width="12" Height="6" Canvas.Left="418" Canvas.Top="100" Fill="#E4F7B0" />
+
+          <Rectangle Width="168" Height="8" Canvas.Left="48" Canvas.Top="128" Fill="#6C442B" />
+          <Rectangle Width="168" Height="8" Canvas.Left="48" Canvas.Top="160" Fill="#6C442B" />
+          <Rectangle Width="8" Height="52" Canvas.Left="70" Canvas.Top="118" Fill="#8B5B35" />
+          <Rectangle Width="8" Height="52" Canvas.Left="114" Canvas.Top="118" Fill="#8B5B35" />
+          <Rectangle Width="8" Height="52" Canvas.Left="158" Canvas.Top="118" Fill="#8B5B35" />
+          <Rectangle Width="8" Height="52" Canvas.Left="202" Canvas.Top="118" Fill="#8B5B35" />
+          <Rectangle Width="18" Height="8" Canvas.Left="65" Canvas.Top="116" Fill="#BA7B43" />
+          <Rectangle Width="18" Height="8" Canvas.Left="109" Canvas.Top="116" Fill="#BA7B43" />
+          <Rectangle Width="18" Height="8" Canvas.Left="153" Canvas.Top="116" Fill="#BA7B43" />
+          <Rectangle Width="18" Height="8" Canvas.Left="197" Canvas.Top="116" Fill="#BA7B43" />
+
+          <Rectangle Width="138" Height="64" Canvas.Left="462" Canvas.Top="150" Fill="#7E5A37" />
+          <Rectangle Width="138" Height="10" Canvas.Left="462" Canvas.Top="150" Fill="#B5854D" />
+          <Rectangle Width="10" Height="64" Canvas.Left="488" Canvas.Top="150" Fill="#5C3C27" />
+          <Rectangle Width="10" Height="64" Canvas.Left="532" Canvas.Top="150" Fill="#5C3C27" />
+          <Rectangle Width="10" Height="64" Canvas.Left="576" Canvas.Top="150" Fill="#5C3C27" />
+          <Rectangle Width="138" Height="8" Canvas.Left="462" Canvas.Top="206" Fill="#4B3020" />
+
+          <Rectangle Width="116" Height="18" Canvas.Left="74" Canvas.Top="222" Fill="#6B4B33" />
+          <Rectangle Width="116" Height="18" Canvas.Left="74" Canvas.Top="244" Fill="#7A5336" />
+          <Rectangle Width="116" Height="18" Canvas.Left="74" Canvas.Top="266" Fill="#6B4B33" />
+          <Rectangle Width="96" Height="6" Canvas.Left="84" Canvas.Top="226" Fill="#89CC58" />
+          <Rectangle Width="96" Height="6" Canvas.Left="84" Canvas.Top="248" Fill="#D7B145" />
+          <Rectangle Width="96" Height="6" Canvas.Left="84" Canvas.Top="270" Fill="#A5D66B" />
+          <Rectangle Width="6" Height="12" Canvas.Left="94" Canvas.Top="216" Fill="#4C7F3C" />
+          <Rectangle Width="6" Height="12" Canvas.Left="124" Canvas.Top="216" Fill="#4C7F3C" />
+          <Rectangle Width="6" Height="12" Canvas.Left="154" Canvas.Top="216" Fill="#4C7F3C" />
+
+          <Rectangle Width="20" Height="44" Canvas.Left="36" Canvas.Top="54" Fill="#7A4F31" />
+          <Rectangle Width="76" Height="30" Canvas.Left="8" Canvas.Top="36" Fill="#40733F" />
+          <Rectangle Width="58" Height="30" Canvas.Left="17" Canvas.Top="20" Fill="#4C8946" />
+          <Rectangle Width="40" Height="22" Canvas.Left="26" Canvas.Top="10" Fill="#5DA253" />
+          <Rectangle Width="20" Height="10" Canvas.Left="12" Canvas.Top="60" Fill="#315C35" />
+          <Rectangle Width="20" Height="10" Canvas.Left="58" Canvas.Top="60" Fill="#315C35" />
+          <Rectangle Width="12" Height="4" Canvas.Left="43" Canvas.Top="60" Fill="#A46F3F" />
+
+          <Rectangle Width="20" Height="44" Canvas.Left="570" Canvas.Top="62" Fill="#7A4F31" />
+          <Rectangle Width="80" Height="30" Canvas.Left="530" Canvas.Top="44" Fill="#40733F" />
+          <Rectangle Width="62" Height="30" Canvas.Left="539" Canvas.Top="26" Fill="#4C8946" />
+          <Rectangle Width="42" Height="22" Canvas.Left="549" Canvas.Top="16" Fill="#5DA253" />
+          <Rectangle Width="20" Height="10" Canvas.Left="536" Canvas.Top="70" Fill="#315C35" />
+          <Rectangle Width="20" Height="10" Canvas.Left="592" Canvas.Top="70" Fill="#315C35" />
+
+          <Rectangle Width="6" Height="6" Canvas.Left="236" Canvas.Top="160" Fill="#F7E06C" />
+          <Rectangle Width="6" Height="6" Canvas.Left="244" Canvas.Top="160" Fill="#F7E06C" />
+          <Rectangle Width="6" Height="6" Canvas.Left="240" Canvas.Top="154" Fill="#FFF7B8" />
+          <Rectangle Width="4" Height="14" Canvas.Left="242" Canvas.Top="166" Fill="#3F7F3A" />
+          <Rectangle Width="6" Height="6" Canvas.Left="382" Canvas.Top="190" Fill="#E96F7D" />
+          <Rectangle Width="6" Height="6" Canvas.Left="390" Canvas.Top="190" Fill="#E96F7D" />
+          <Rectangle Width="6" Height="6" Canvas.Left="386" Canvas.Top="184" Fill="#FFD4D9" />
+          <Rectangle Width="4" Height="14" Canvas.Left="388" Canvas.Top="196" Fill="#3F7F3A" />
+          <Rectangle Width="6" Height="6" Canvas.Left="430" Canvas.Top="236" Fill="#C5EA72" />
+          <Rectangle Width="6" Height="6" Canvas.Left="438" Canvas.Top="236" Fill="#C5EA72" />
+          <Rectangle Width="4" Height="14" Canvas.Left="436" Canvas.Top="242" Fill="#3F7F3A" />
+          <Rectangle Width="4" Height="4" Canvas.Left="250" Canvas.Top="246" Fill="#F2EFE0" />
+          <Rectangle Width="4" Height="4" Canvas.Left="536" Canvas.Top="224" Fill="#F2EFE0" />
+          <Rectangle Width="4" Height="4" Canvas.Left="334" Canvas.Top="250" Fill="#4D5A48" />
+          <Rectangle Width="6" Height="4" Canvas.Left="340" Canvas.Top="252" Fill="#5B6B55" />
+        </Canvas>
+
+        <Canvas x:Name="PixelPetLayer" IsHitTestVisible="False" RenderOptions.EdgeMode="Aliased">
+          <Canvas x:Name="PixelCat" Width="64" Height="64" Visibility="Collapsed" RenderOptions.EdgeMode="Aliased">
+            <Canvas.RenderTransform><TransformGroup><ScaleTransform x:Name="CatFacing" ScaleX="1" ScaleY="1" CenterX="32" CenterY="32" /><TranslateTransform x:Name="CatBob" /></TransformGroup></Canvas.RenderTransform>
+            <Rectangle Width="44" Height="10" Canvas.Left="10" Canvas.Top="50" Fill="#43271D" Opacity="0.32" />
+            <Rectangle Width="36" Height="20" Canvas.Left="14" Canvas.Top="34" Fill="#B85D31" />
+            <Rectangle Width="30" Height="18" Canvas.Left="17" Canvas.Top="20" Fill="#E8914B" />
+            <Rectangle Width="20" Height="8" Canvas.Left="22" Canvas.Top="14" Fill="#F1A45D" />
+            <Rectangle Width="8" Height="12" Canvas.Left="15" Canvas.Top="8" Fill="#D97842" />
+            <Rectangle Width="8" Height="12" Canvas.Left="41" Canvas.Top="8" Fill="#D97842" />
+            <Rectangle Width="4" Height="7" Canvas.Left="17" Canvas.Top="11" Fill="#F29BAA" />
+            <Rectangle Width="4" Height="7" Canvas.Left="43" Canvas.Top="11" Fill="#F29BAA" />
+            <Rectangle Width="8" Height="8" Canvas.Left="24" Canvas.Top="25" Fill="#22282B" />
+            <Rectangle Width="8" Height="8" Canvas.Left="35" Canvas.Top="25" Fill="#22282B" />
+            <Rectangle Width="2" Height="2" Canvas.Left="26" Canvas.Top="26" Fill="#FFFFFF" />
+            <Rectangle Width="2" Height="2" Canvas.Left="37" Canvas.Top="26" Fill="#FFFFFF" />
+            <Rectangle Width="4" Height="4" Canvas.Left="31" Canvas.Top="34" Fill="#E66E89" />
+            <Rectangle Width="2" Height="2" Canvas.Left="27" Canvas.Top="38" Fill="#5A372A" />
+            <Rectangle Width="2" Height="2" Canvas.Left="37" Canvas.Top="38" Fill="#5A372A" />
+            <Rectangle Width="10" Height="4" Canvas.Left="18" Canvas.Top="53" Fill="#F0B36B" />
+            <Rectangle Width="10" Height="4" Canvas.Left="38" Canvas.Top="53" Fill="#F0B36B" />
+            <Rectangle Width="8" Height="5" Canvas.Left="49" Canvas.Top="36" Fill="#E8914B" />
+            <Rectangle Width="7" Height="7" Canvas.Left="55" Canvas.Top="30" Fill="#D97842" />
+            <Rectangle Width="4" Height="3" Canvas.Left="8" Canvas.Top="30" Fill="#5A372A" />
+            <Rectangle Width="4" Height="3" Canvas.Left="52" Canvas.Top="30" Fill="#5A372A" />
+          </Canvas>
+
+          <Canvas x:Name="PixelDog" Width="64" Height="64" Visibility="Collapsed" RenderOptions.EdgeMode="Aliased">
+            <Canvas.RenderTransform><TransformGroup><ScaleTransform x:Name="DogFacing" ScaleX="1" ScaleY="1" CenterX="32" CenterY="32" /><TranslateTransform x:Name="DogBob" /></TransformGroup></Canvas.RenderTransform>
+            <Rectangle Width="46" Height="10" Canvas.Left="10" Canvas.Top="50" Fill="#43271D" Opacity="0.32" />
+            <Rectangle Width="38" Height="20" Canvas.Left="13" Canvas.Top="34" Fill="#8E552F" />
+            <Rectangle Width="32" Height="22" Canvas.Left="16" Canvas.Top="18" Fill="#D58A4D" />
+            <Rectangle Width="10" Height="20" Canvas.Left="8" Canvas.Top="20" Fill="#67402B" />
+            <Rectangle Width="10" Height="20" Canvas.Left="46" Canvas.Top="20" Fill="#67402B" />
+            <Rectangle Width="16" Height="9" Canvas.Left="24" Canvas.Top="32" Fill="#F0C28D" />
+            <Rectangle Width="8" Height="8" Canvas.Left="22" Canvas.Top="25" Fill="#171513" />
+            <Rectangle Width="8" Height="8" Canvas.Left="36" Canvas.Top="25" Fill="#171513" />
+            <Rectangle Width="2" Height="2" Canvas.Left="24" Canvas.Top="26" Fill="#FFFFFF" />
+            <Rectangle Width="2" Height="2" Canvas.Left="38" Canvas.Top="26" Fill="#FFFFFF" />
+            <Rectangle Width="6" Height="4" Canvas.Left="30" Canvas.Top="31" Fill="#211816" />
+            <Rectangle Width="22" Height="4" Canvas.Left="22" Canvas.Top="42" Fill="#3B947D" />
+            <Rectangle Width="6" Height="6" Canvas.Left="30" Canvas.Top="45" Fill="#F0C75E" />
+            <Rectangle Width="10" Height="4" Canvas.Left="16" Canvas.Top="53" Fill="#F0C28D" />
+            <Rectangle Width="10" Height="4" Canvas.Left="40" Canvas.Top="53" Fill="#F0C28D" />
+            <Rectangle Width="8" Height="7" Canvas.Left="50" Canvas.Top="36" Fill="#D58A4D" />
+            <Rectangle Width="6" Height="7" Canvas.Left="56" Canvas.Top="30" Fill="#C77942" />
+          </Canvas>
+
+          <Canvas x:Name="PixelRobot" Width="64" Height="64" Visibility="Collapsed" RenderOptions.EdgeMode="Aliased">
+            <Canvas.RenderTransform><TransformGroup><ScaleTransform x:Name="RobotFacing" ScaleX="1" ScaleY="1" CenterX="32" CenterY="32" /><TranslateTransform x:Name="RobotBob" /></TransformGroup></Canvas.RenderTransform>
+            <Rectangle Width="44" Height="10" Canvas.Left="10" Canvas.Top="51" Fill="#18232B" Opacity="0.30" />
+            <Rectangle Width="36" Height="20" Canvas.Left="14" Canvas.Top="34" Fill="#5F9EB4" />
+            <Rectangle Width="36" Height="24" Canvas.Left="14" Canvas.Top="16" Fill="#A3D9E4" />
+            <Rectangle Width="28" Height="15" Canvas.Left="18" Canvas.Top="20" Fill="#69CFE8" />
+            <Rectangle Width="6" Height="10" Canvas.Left="30" Canvas.Top="6" Fill="#4A5964" />
+            <Rectangle Width="10" Height="8" Canvas.Left="28" Canvas.Top="0" Fill="#FF7B9C" />
+            <Rectangle Width="10" Height="10" Canvas.Left="20" Canvas.Top="24" Fill="#F2FFF8" />
+            <Rectangle Width="10" Height="10" Canvas.Left="36" Canvas.Top="24" Fill="#F2FFF8" />
+            <Rectangle Width="6" Height="6" Canvas.Left="22" Canvas.Top="26" Fill="#26323B" />
+            <Rectangle Width="6" Height="6" Canvas.Left="38" Canvas.Top="26" Fill="#26323B" />
+            <Rectangle Width="2" Height="2" Canvas.Left="24" Canvas.Top="26" Fill="#8EFFFF" />
+            <Rectangle Width="2" Height="2" Canvas.Left="40" Canvas.Top="26" Fill="#8EFFFF" />
+            <Rectangle Width="20" Height="4" Canvas.Left="22" Canvas.Top="42" Fill="#4A5964" />
+            <Rectangle Width="8" Height="4" Canvas.Left="16" Canvas.Top="53" Fill="#9DD4DF" />
+            <Rectangle Width="8" Height="4" Canvas.Left="40" Canvas.Top="53" Fill="#9DD4DF" />
+            <Rectangle Width="4" Height="4" Canvas.Left="20" Canvas.Top="36" Fill="#88FFA8" />
+            <Rectangle Width="4" Height="4" Canvas.Left="30" Canvas.Top="36" Fill="#FFE08A" />
+            <Rectangle Width="4" Height="4" Canvas.Left="40" Canvas.Top="36" Fill="#FF8FA3" />
+          </Canvas>
+
+          <controls:PixelPetSprite x:Name="OrangeCatSprite" Width="80" Height="80" Variant="Orange" Visibility="Collapsed" RenderOptions.EdgeMode="Aliased">
+            <controls:PixelPetSprite.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform x:Name="OrangeCatFacing" ScaleX="1" ScaleY="1" CenterX="40" CenterY="40" />
+                <TranslateTransform x:Name="OrangeCatBob" />
+              </TransformGroup>
+            </controls:PixelPetSprite.RenderTransform>
+          </controls:PixelPetSprite>
+          <controls:PixelPetSprite x:Name="GrayCatSprite" Width="80" Height="80" Variant="Gray" Visibility="Collapsed" RenderOptions.EdgeMode="Aliased">
+            <controls:PixelPetSprite.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform x:Name="GrayCatFacing" ScaleX="1" ScaleY="1" CenterX="40" CenterY="40" />
+                <TranslateTransform x:Name="GrayCatBob" />
+              </TransformGroup>
+            </controls:PixelPetSprite.RenderTransform>
+          </controls:PixelPetSprite>
+          <controls:PixelPetSprite x:Name="CreamCatSprite" Width="80" Height="80" Variant="Cream" Visibility="Collapsed" RenderOptions.EdgeMode="Aliased">
+            <controls:PixelPetSprite.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform x:Name="CreamCatFacing" ScaleX="1" ScaleY="1" CenterX="40" CenterY="40" />
+                <TranslateTransform x:Name="CreamCatBob" />
+              </TransformGroup>
+            </controls:PixelPetSprite.RenderTransform>
+          </controls:PixelPetSprite>
+
+          <Border x:Name="CatEmote" Width="34" Height="22" Background="#FFF3C4" BorderBrush="#5A372A" BorderThickness="2" Visibility="Collapsed">
+            <TextBlock x:Name="CatEmoteText" Text="!" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Foreground="#5A372A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <Border x:Name="DogEmote" Width="34" Height="22" Background="#FFF3C4" BorderBrush="#5A372A" BorderThickness="2" Visibility="Collapsed">
+            <TextBlock x:Name="DogEmoteText" Text="!" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Foreground="#5A372A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <Border x:Name="RobotEmote" Width="34" Height="22" Background="#D7FCFF" BorderBrush="#26323B" BorderThickness="2" Visibility="Collapsed">
+            <TextBlock x:Name="RobotEmoteText" Text="..." FontFamily="Consolas" FontSize="12" FontWeight="Bold" Foreground="#26323B" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+        </Canvas>
+
+        <Border Canvas.Left="12" Canvas.Top="12" Width="132" Height="30"
+                Background="#D9B16A" BorderBrush="#4C3020" BorderThickness="3"
+                Visibility="{Binding IsStatusVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+          <TextBlock Text="{Binding StatusText}" Foreground="#2B1A12" FontFamily="Consolas" FontSize="14" FontWeight="Bold"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
+        </Border>
+        <Viewport3D x:Name="Pet3DViewport" Width="1" Height="1" Visibility="Collapsed" />
+      </Canvas>
+    </Border>
+
+    <Rectangle Margin="1"
+               Stroke="#F1D183"
+               StrokeThickness="2"
+               StrokeDashArray="5 4"
+               Fill="#08FFFFFF"
+               Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+    <Thumb Width="16" HorizontalAlignment="Left" VerticalAlignment="Stretch" Cursor="SizeWE" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="W" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Width="16" HorizontalAlignment="Right" VerticalAlignment="Stretch" Cursor="SizeWE" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="E" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Top" Cursor="SizeNS" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="N" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Cursor="SizeNS" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="S" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="SizeNWSE" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="NW" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Cursor="SizeNESW" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="NE" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Cursor="SizeNESW" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="SW" Style="{StaticResource InvisibleResizeThumb}" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}" />
+    <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="SizeNWSE" DragDelta="ResizeThumb_DragDelta" DragCompleted="ResizeThumb_DragCompleted" Tag="SE" Visibility="{Binding IsUnlocked, Converter={StaticResource BoolToVisibilityConverter}}">
+      <Thumb.Template>
+        <ControlTemplate TargetType="Thumb">
+          <Border Background="#D9B16A" BorderBrush="#4C3020" BorderThickness="2">
+            <Path Data="M 4 12 L 12 4 M 7 12 L 12 7" Stroke="#4C3020" StrokeThickness="2" />
+          </Border>
+        </ControlTemplate>
+      </Thumb.Template>
+    </Thumb>
+  </Grid>
+</Window>

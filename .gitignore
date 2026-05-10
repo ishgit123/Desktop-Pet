@@ -1,0 +1,10 @@
+bin/
+obj/
+.dotnet/
+dotnet-install.ps1
+.vs/
+.idea/
+*.user
+*.suo
+*.log
+petdude-entry.log
