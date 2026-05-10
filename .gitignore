@@ -1,6 +1,7 @@
 bin/
 obj/
 .dotnet/
+artifacts/
 dotnet-install.ps1
 .vs/
 .idea/

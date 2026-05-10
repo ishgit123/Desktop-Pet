@@ -2,6 +2,22 @@
 
 A small Windows desktop pet built with C# and WPF.
 
+## Easy install
+
+From the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Install-PetDude.ps1
+```
+
+This creates a self-contained Windows install under `%LocalAppData%\PetDude\app`, adds Desktop and Start Menu shortcuts, and launches the app.
+
+To uninstall:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Uninstall-PetDude.ps1
+```
+
 ## What is implemented
 
 - Transparent, borderless habitat window
